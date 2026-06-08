@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pharmacy-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pharmacy-api
+  template:
+    metadata:
+      labels:
+        app: pharmacy-api
+    spec:
+      containers:
+        - name: pharmacy-api
+          image: 044854092896.dkr.ecr.eu-west-2.amazonaws.com/pharmacy-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+
+          env:
+            - name: TABLE_NAME
+              value: "gaming-tournament-platform-GamingAppTable-152EYGS7OY5SZ"
+            - name: AWS_DEFAULT_REGION
+              value: "eu-west-2"
+
+          volumeMounts:
+            - name: aws-credentials
+              mountPath: /root/.aws
+              readOnly: true
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+      volumes:
+        - name: aws-credentials
+          secret:
+            secretName: aws-credentials
