@@ -1,2 +1,30 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
 kubeconfig
+*.pem
+*.key
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Test / coverage output
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
