@@ -1,6 +1,7 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pharmacy-api-config
 data:
-  TABLE_NAME: pharmacy-table
+  TABLE_NAME: pharmacy-api-drugs
