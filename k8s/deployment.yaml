@@ -4,47 +4,94 @@ metadata:
   name: pharmacy-api
 spec:
   replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
   selector:
     matchLabels:
       app: pharmacy-api
+
   template:
     metadata:
       labels:
         app: pharmacy-api
+
     spec:
+      serviceAccountName: pharmacy-api
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+
       containers:
         - name: pharmacy-api
           image: 044854092896.dkr.ecr.eu-west-2.amazonaws.com/pharmacy-api:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+
           ports:
-            - containerPort: 8000
+            - name: http
+              containerPort: 8000
+              protocol: TCP
 
           env:
-            - name: TABLE_NAME
-              value: "gaming-tournament-platform-GamingAppTable-152EYGS7OY5SZ"
             - name: AWS_DEFAULT_REGION
               value: "eu-west-2"
 
-          volumeMounts:
-            - name: aws-credentials
-              mountPath: /root/.aws
-              readOnly: true
+            - name: TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: pharmacy-api-config
+                  key: TABLE_NAME
+                  optional: true
 
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8000
-            initialDelaySeconds: 10
-            periodSeconds: 15
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
 
           readinessProbe:
             httpGet:
-              path: /
-              port: 8000
+              path: /health
+              port: http
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
 
       volumes:
-        - name: aws-credentials
-          secret:
-            secretName: aws-credentials
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi
