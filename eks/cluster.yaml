@@ -1,0 +1,26 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: pharmacy-eks
+  region: eu-west-2
+  version: "1.36"
+
+managedNodeGroups:
+  - name: pharmacy-workers
+    instanceType: t3.medium
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 2
+    volumeSize: 20
+
+    labels:
+      workload: pharmacy-api
+
+    tags:
+      Project: pharmacy-api
+      Environment: portfolio
+
+addons:
+  - name: eks-pod-identity-agent
