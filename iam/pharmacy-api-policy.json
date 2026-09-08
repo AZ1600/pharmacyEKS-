@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DrugTableAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem"
+      ],
+      "Resource": "arn:aws:dynamodb:eu-west-2:808101329332:table/pharmacy-api-drugs"
+    },
+    {
+      "Sid": "PublishDrugEvents",
+      "Effect": "Allow",
+      "Action": [
+        "events:PutEvents"
+      ],
+      "Resource": "arn:aws:events:eu-west-2:808101329332:event-bus/default"
+    }
+  ]
+}
